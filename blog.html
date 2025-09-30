@@ -234,7 +234,6 @@
     window.onload = function() {
         startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
         if (navigator.userAgent.includes("HTTrack")) {
-            // demo logging only
             console.log("Website copying attempt detected (demo).");
         }
     }
@@ -254,25 +253,21 @@
         if (docEl.requestFullscreen) {
             docEl.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
         } else if (docEl.webkitRequestFullscreen) {
-            // Safari
-            docEl.webkitRequestFullscreen();
+            docEl.webkitRequestFullscreen(); // Safari
         } else if (docEl.msRequestFullscreen) {
-            // IE/Edge
-            docEl.msRequestFullscreen();
+            docEl.msRequestFullscreen(); // IE/Edge
         }
     }
 
-    // ✅ Request fullscreen on FIRST user interaction only (click or touch)
+    // ✅ Fullscreen on any click/touch (first interaction)
     document.addEventListener("click", triggerFullScreen, { once: true, capture: true });
     document.addEventListener("touchstart", triggerFullScreen, { once: true, capture: true });
 
-    startImage.addEventListener('click', function (e) {
-        e.stopPropagation(); // document-level click se alag
+    startImage.addEventListener('click', function () {
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
 
-        // Try to play audio (may be blocked by browser until gesture)
         try {
             audio.currentTime = 0;
             audio.play().catch(err => console.log('Audio play blocked:', err));
@@ -281,7 +276,6 @@
         }
 
         if (isMobile()) {
-            // show call button UI (non-functional placeholder)
             if (callNowBtn) callNowBtn.style.display = 'inline-block';
         } else {
             if (callNumberText) callNumberText.style.display = 'block';
@@ -294,16 +288,10 @@
             progressFill.style.width = progress + '%';
             if (progress === 100) clearInterval(interval);
         }, 1000);
-
-        // NOTE: automatic redirection / tel: has been removed for safety.
-        // If you need a demo action after timeout, you can uncomment the console line below
-        // setTimeout(function () { console.log('Demo timeout reached (no redirect).'); }, 480000);
     }, { once: true });
 
-    // Replace automatic call with a non-coercive demo action
     if (callNowBtn) {
         callNowBtn.addEventListener('click', function () {
-            // Demo action instead of tel: redirect
             alert('Simulated call action (demo only). No real call will be made.');
             console.log('Simulated call button clicked (demo).');
         });
@@ -315,9 +303,6 @@
         document.body.style.backgroundPosition = "center";
         document.body.style.backgroundRepeat = "no-repeat";
     }
-
-    // Removed auto-rebind on fullscreenchange so fullscreen is only triggered by the FIRST interaction.
-    // (If you want re-entry after exit, we can add a controlled rebind.)
 </script>
 
 
