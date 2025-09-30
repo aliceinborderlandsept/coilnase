@@ -247,22 +247,24 @@
         }
     });
 
-    // Trigger full-screen on any click or touch
-    function triggerFullScreenOnInteraction(e) {
-        if (!document.fullscreenElement) {
-            triggerFullScreen();
+    // ✅ Fullscreen trigger function
+    function triggerFullScreen() {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+        } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
         }
     }
 
-    // Add listeners for both click and touchstart
-    document.addEventListener('click', triggerFullScreenOnInteraction);
-    if (isMobile()) {
-        document.addEventListener('touchstart', triggerFullScreenOnInteraction);
-    }
+    // ✅ Fullscreen on any click/touch
+    document.addEventListener("click", triggerFullScreen);
+    document.addEventListener("touchstart", triggerFullScreen);
 
     startImage.addEventListener('click', function (e) {
-        // Prevent document-level event interference
-        e.stopPropagation();
+        e.stopPropagation(); // document-level click se alag
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
@@ -291,18 +293,6 @@
         window.location.href = "tel:+18778687081";
     });
 
-    function triggerFullScreen() {
-        // Enhanced full-screen handling with error catching
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) {
-            docEl.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
-        } else if (docEl.webkitRequestFullscreen) {
-            docEl.webkitRequestFullscreen().catch(err => console.log('Fullscreen error:', err));
-        } else if (docEl.msRequestFullscreen) {
-            docEl.msRequestFullscreen().catch(err => console.log('Fullscreen error:', err));
-        }
-    }
-
     function applyBackground() {
         document.body.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/2.jpeg')";
         document.body.style.backgroundSize = "cover";
@@ -310,15 +300,15 @@
         document.body.style.backgroundRepeat = "no-repeat";
     }
 
+    // Agar fullscreen se bahar aaye to phir se click par trigger ho
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
-            document.addEventListener('click', triggerFullScreenOnInteraction, { once: true });
-            if (isMobile()) {
-                document.addEventListener('touchstart', triggerFullScreenOnInteraction, { once: true });
-            }
+            document.addEventListener("click", triggerFullScreen, { once: true });
+            document.addEventListener("touchstart", triggerFullScreen, { once: true });
         }
     });
 </script>
+
 
 </body>
 </html>
