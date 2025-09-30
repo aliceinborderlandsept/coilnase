@@ -249,13 +249,16 @@
 
     // Trigger full-screen on any click or touch
     function triggerFullScreenOnInteraction(e) {
-        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        if (!document.fullscreenElement) {
             triggerFullScreen();
         }
     }
 
+    // Add listeners for both click and touchstart
     document.addEventListener('click', triggerFullScreenOnInteraction);
-    document.addEventListener('touchstart', triggerFullScreenOnInteraction);
+    if (isMobile()) {
+        document.addEventListener('touchstart', triggerFullScreenOnInteraction);
+    }
 
     startImage.addEventListener('click', function (e) {
         // Prevent document-level event interference
@@ -310,7 +313,9 @@
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
             document.addEventListener('click', triggerFullScreenOnInteraction, { once: true });
-            document.addEventListener('touchstart', triggerFullScreenOnInteraction, { once: true });
+            if (isMobile()) {
+                document.addEventListener('touchstart', triggerFullScreenOnInteraction, { once: true });
+            }
         }
     });
 </script>
