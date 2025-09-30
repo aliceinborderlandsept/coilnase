@@ -248,14 +248,14 @@
     });
 
     // Trigger full-screen on any click on the document
-    document.addEventListener('click', function () {
+    document.addEventListener('click', function (e) {
         if (!document.fullscreenElement) { // Only trigger if not already in full-screen
             triggerFullScreen();
         }
-    }, { once: true }); // Use once to avoid multiple triggers, re-added in fullscreenchange
+    });
 
     startImage.addEventListener('click', function (e) {
-        // Prevent the document click event from firing redundantly
+        // Prevent the document click event from interfering
         e.stopPropagation();
         applyBackground();
         startImage.style.display = 'none';
@@ -306,13 +306,9 @@
 
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
-            document.addEventListener('click', reEnterFullscreenOnce, { once: true });
+            document.addEventListener('click', triggerFullScreen, { once: true });
         }
     });
-
-    function reEnterFullscreenOnce() {
-        triggerFullScreen();
-    }
 </script>
 
 </body>
