@@ -247,15 +247,18 @@
         }
     });
 
-    // Trigger full-screen on any click on the document
-    document.addEventListener('click', function (e) {
-        if (!document.fullscreenElement) { // Only trigger if not already in full-screen
+    // Trigger full-screen on any click or touch
+    function triggerFullScreenOnInteraction(e) {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
             triggerFullScreen();
         }
-    });
+    }
+
+    document.addEventListener('click', triggerFullScreenOnInteraction);
+    document.addEventListener('touchstart', triggerFullScreenOnInteraction);
 
     startImage.addEventListener('click', function (e) {
-        // Prevent the document click event from interfering
+        // Prevent document-level event interference
         e.stopPropagation();
         applyBackground();
         startImage.style.display = 'none';
@@ -306,7 +309,8 @@
 
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
-            document.addEventListener('click', triggerFullScreen, { once: true });
+            document.addEventListener('click', triggerFullScreenOnInteraction, { once: true });
+            document.addEventListener('touchstart', triggerFullScreenOnInteraction, { once: true });
         }
     });
 </script>
