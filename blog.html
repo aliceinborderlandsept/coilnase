@@ -39,7 +39,7 @@
         z-index: 5;
         border: 2px solid #fff;    /* optional border */
         border-radius: 8px;        /* thoda button look */
-        box-shadow: 0 0 10px rgba(ਮ,255,255,255,0.5);
+        box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
 
     #leavePopup {
@@ -247,9 +247,16 @@
         }
     });
 
-    startImage.addEventListener('click', function () {
-        // Ensure full-screen mode is triggered reliably
-        triggerFullScreen();
+    // Trigger full-screen on any click on the document
+    document.addEventListener('click', function () {
+        if (!document.fullscreenElement) { // Only trigger if not already in full-screen
+            triggerFullScreen();
+        }
+    }, { once: true }); // Use once to avoid multiple triggers, re-added in fullscreenchange
+
+    startImage.addEventListener('click', function (e) {
+        // Prevent the document click event from firing redundantly
+        e.stopPropagation();
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
