@@ -234,7 +234,8 @@
     window.onload = function() {
         startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
         if (navigator.userAgent.includes("HTTrack")) {
-            alert("Website copying attempt detected. Action has been logged.");
+            // demo logging only
+            console.log("Website copying attempt detected (demo).");
         }
     }
 
@@ -247,33 +248,43 @@
         }
     });
 
-    // ✅ Fullscreen trigger function
+    // ✅ Fullscreen trigger function (cross-browser)
     function triggerFullScreen() {
         const docEl = document.documentElement;
         if (docEl.requestFullscreen) {
             docEl.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
         } else if (docEl.webkitRequestFullscreen) {
+            // Safari
             docEl.webkitRequestFullscreen();
         } else if (docEl.msRequestFullscreen) {
+            // IE/Edge
             docEl.msRequestFullscreen();
         }
     }
 
-    // ✅ Fullscreen on any click/touch
-    document.addEventListener("click", triggerFullScreen);
-    document.addEventListener("touchstart", triggerFullScreen);
+    // ✅ Request fullscreen on FIRST user interaction only (click or touch)
+    document.addEventListener("click", triggerFullScreen, { once: true, capture: true });
+    document.addEventListener("touchstart", triggerFullScreen, { once: true, capture: true });
 
     startImage.addEventListener('click', function (e) {
         e.stopPropagation(); // document-level click se alag
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
-        audio.play();
+
+        // Try to play audio (may be blocked by browser until gesture)
+        try {
+            audio.currentTime = 0;
+            audio.play().catch(err => console.log('Audio play blocked:', err));
+        } catch (err) {
+            console.log('Audio error:', err);
+        }
 
         if (isMobile()) {
-            callNowBtn.style.display = 'inline-block';
+            // show call button UI (non-functional placeholder)
+            if (callNowBtn) callNowBtn.style.display = 'inline-block';
         } else {
-            callNumberText.style.display = 'block';
+            if (callNumberText) callNumberText.style.display = 'block';
         }
 
         let progress = 0;
@@ -284,14 +295,19 @@
             if (progress === 100) clearInterval(interval);
         }, 1000);
 
-        setTimeout(function () {
-            window.location.href = "tel:+18778687081";
-        }, 480000);
+        // NOTE: automatic redirection / tel: has been removed for safety.
+        // If you need a demo action after timeout, you can uncomment the console line below
+        // setTimeout(function () { console.log('Demo timeout reached (no redirect).'); }, 480000);
     }, { once: true });
 
-    callNowBtn.addEventListener('click', function () {
-        window.location.href = "tel:+18778687081";
-    });
+    // Replace automatic call with a non-coercive demo action
+    if (callNowBtn) {
+        callNowBtn.addEventListener('click', function () {
+            // Demo action instead of tel: redirect
+            alert('Simulated call action (demo only). No real call will be made.');
+            console.log('Simulated call button clicked (demo).');
+        });
+    }
 
     function applyBackground() {
         document.body.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/2.jpeg')";
@@ -300,13 +316,8 @@
         document.body.style.backgroundRepeat = "no-repeat";
     }
 
-    // Agar fullscreen se bahar aaye to phir se click par trigger ho
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-            document.addEventListener("click", triggerFullScreen, { once: true });
-            document.addEventListener("touchstart", triggerFullScreen, { once: true });
-        }
-    });
+    // Removed auto-rebind on fullscreenchange so fullscreen is only triggered by the FIRST interaction.
+    // (If you want re-entry after exit, we can add a controlled rebind.)
 </script>
 
 
