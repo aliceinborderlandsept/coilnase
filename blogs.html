@@ -58,8 +58,8 @@
         max-width: 380px;
         text-align: center;
         animation: heartbeat 1s infinite;
-        max-height: 80vh;
-        overflow-y: auto;
+        /* Scroll removed by changing overflow-y to hidden */
+        overflow-y: hidden;
     }
 
     @keyframes heartbeat {
@@ -137,7 +137,8 @@
         #leavePopup {
             padding: 12px;
             max-width: 340px;
-            max-height: 75vh;
+            /* Scroll removed for mobile too */
+            overflow-y: hidden;
         }
 
         .message-text {
