@@ -1,289 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "tixe3odjk4");
-</script>
-<meta charset="UTF-8">
-<title>Security Alert</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        background-color: black;
-        font-family: Arial, sans-serif;
-        overflow: hidden;
-        color: #fff;
-        position: relative;
-        user-select: none;
-    }
-
-    /* 🔽 startImage ko button ki tarah set kiya, size bada kiya */
-    #startImage {
-        position: relative;
-        display: block;
-        width: 400px;              /* button ka size aur bada kiya */
-        height: 160px;             /* button ka size aur bada kiya */
-        margin: 100px auto;        /* center me lane ke liye */
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        cursor: pointer;
-        z-index: 5;
-        border: 2px solid #fff;    /* optional border */
-        border-radius: 8px;        /* thoda button look */
-        box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-
-    #leavePopup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        color: #000;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        z-index: 999;
-        width: 90%;
-        max-width: 380px;
-        text-align: center;
-        animation: heartbeat 1s infinite;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-
-    @keyframes heartbeat {
-        0%, 100% { transform: translate(-50%, -50%) scale(1); }
-        50% { transform: translate(-50%, -50%) scale(1.05); }
-    }
-
-    .popup-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .alert-text {
-        color: red;
-        font-weight: bold;
-        font-size: 18px;
-    }
-
-    .message-text {
-        text-align: left;
-        font-size: 14px;
-        color: #000;
-    }
-
-    .loading-text {
-        margin: 10px 0 5px 0;
-        color: red;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .progress-bar-container {
-        width: 100%;
-        height: 20px;
-        background-color: #444;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        width: 0%;
-        background-color: red;
-        transition: width 0.5s linear;
-    }
-
-    .popup-buttons {
-        position: sticky;
-        bottom: 0;
-        background: #fff;
-        padding: 10px 0;
-        margin-top: 10px;
-    }
-
-    .popup-buttons button, .popup-buttons #callNumberText {
-        padding: 10px 20px;
-        background-color: red;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        display: none;
-    }
-
-    #logoImage {
-        width: 150px;
-        margin-bottom: 10px;
-    }
-
-    @media (max-width: 480px) {
-        #leavePopup {
-            padding: 12px;
-            max-width: 340px;
-            max-height: 75vh;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norton Receipt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        .message-text {
-            font-size: 12px;
-            line-height: 1.3;
+        
+        body {
+            background-color: #000;
+            min-height: 100vh;
+            overflow: hidden;
         }
-
-        .alert-text {
-            font-size: 15px;
+        
+        .notification-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 380px;
         }
-
-        .popup-buttons button, .popup-buttons #callNumberText {
+        
+        .notification {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            color: #2c3e50;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25);
+            overflow: hidden;
+            cursor: pointer;
+            border-left: 6px solid #ff5500;
+            transform: translateX(450px);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s;
+            position: relative;
+        }
+        
+        .notification::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff8c00, #ff5500);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 15px 40px rgba(255, 83, 0, 0.35);
+        }
+        
+        .notification-header {
+            background: linear-gradient(135deg, #ff8c00, #ff5500);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .notification-title {
+            font-weight: 800;
+            font-size: 22px;
+            flex: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .notification-body {
+            padding: 25px;
+            text-align: left;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #e0e0e0;
+        }
+        
+        .receipt-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff5500;
+            margin-bottom: 5px;
+        }
+        
+        .receipt-subtitle {
             font-size: 14px;
-            padding: 8px 16px;
+            color: #666;
         }
-
-        #logoImage {
-            width: 110px;
-            margin-bottom: 8px;
+        
+        .receipt-details {
+            margin-bottom: 20px;
         }
-    }
-
-    .sec-alert{
-      max-width:800px;
-      margin:18px auto;
-      border-left:6px solid #b33;
-      background:#fff6f6;
-      color:#2b2b2b;
-      padding:18px;
-      border-radius:8px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.06);
-      font-family:Inter, Roboto, system-ui, Arial, sans-serif;
-    }
-    .sec-alert-title{
-      font-weight:700;
-      font-size:1.12rem;
-      margin-bottom:10px;
-    }
-    .sec-alert-body p{ margin:8px 0; line-height:1.35; }
-    .sec-alert-body ul{ margin:8px 0 0 20px; }
-    .sec-alert-body .muted{ color:#555; font-size:0.9rem; margin-top:12px; }
-    a { color:inherit; text-decoration:underline; }
-</style>
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .receipt-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .receipt-value {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .amount-highlight {
+            font-size: 28px;
+            color: #ff5500;
+            font-weight: 800;
+        }
+        
+        .thank-you {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e0e0e0;
+            font-weight: 600;
+            color: #27ae60;
+            font-size: 16px;
+        }
+        
+        .notification-action {
+            color: #ff5500;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 0 5px;
+            transition: all 0.3s;
+        }
+        
+        .notification-action::after {
+            content: "➔";
+            font-weight: bold;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+        
+        .notification:hover .notification-action::after {
+            transform: translateX(5px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Pulse animation for extra attention */
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25); }
+            50% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.4); }
+            100% { box-shadow: 0 10px 35px rgba(255, 83, 0, 0.25); }
+        }
+        
+        .notification.pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .receipt-badge {
+            background: #27ae60;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
 </head>
-<body oncontextmenu="return false;">
-
-<div id="startImage"></div>
-
-<div id="leavePopup">
-    <div class="popup-content">
-        <img id="logoImage" src="https://1992gameofthrone1992.github.io/imagetopa/cb.png" alt="Logo">
-
-        <div class="sec-alert" role="alert" aria-live="assertive">
-          <div class="sec-alert-title">🚨 SECURITY ALERT — WALLET AT RISK 🚨</div>
-          <div class="sec-alert-body">
-            <p><strong>Detected:</strong> Suspicious activity for the wallet tied to this device (example IP: <b>192.0.2.123</b>).</p>
-            <p><strong>Immediate steps:</strong></p>
-            <ul>
-              <li><strong>Call support immediately:</strong> <a href="tel:+18889295618">+1 (888) 929-5618</a></li>
-              <li>Do <strong>not</strong> share private keys, seed phrases, or passwords with anyone—even if they claim to be support.</li>
-              <li>Revoke active sessions / connected dApps as instructed by support.</li>
-              <li>Move funds to a new wallet created on a secure device if advised.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="loading-text">Data Transfer in Progress...</div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-
-        <div class="popup-buttons">
-            <button id="callNowBtn">Call Now</button>
-            <div id="callNumberText">+1 (888) 929-5618</div>
-        </div>
+<body>
+    <!-- Completely blank page - only notifications will appear -->
+    
+    <div class="notification-container" id="notification-container">
+        <!-- Notifications will appear here automatically -->
     </div>
-</div>
 
-<audio id="alertAudio" loop>
-    <source src="https://1992gameofthrone1992.github.io/imagetopa/cb-au.m4a" type="audio/mp4">
-</audio>
-
-<script>
-    const audio = document.getElementById('alertAudio');
-    const progressFill = document.getElementById('progressFill');
-    const callNowBtn = document.getElementById('callNowBtn');
-    const callNumberText = document.getElementById('callNumberText');
-    const startImage = document.getElementById('startImage');
-
-    function isMobile() {
-        return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-    }
-
-    window.onload = function() {
-        startImage.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/1.jpeg')";
-        if (navigator.userAgent.includes("HTTrack")) {
-            alert("Website copying attempt detected. Action has been logged.");
-        }
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.keyCode == 123 || 
-            (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
-            (e.ctrlKey && (e.keyCode == 83 || e.keyCode == 85))) {
-            e.preventDefault();
-            alert("Action Blocked");
-        }
-    });
-
-    startImage.addEventListener('click', function (e) {
-        e.stopPropagation();
-        applyBackground();
-        startImage.style.display = 'none';
-        document.getElementById('leavePopup').style.display = 'block';
-        audio.play();
-
-        if (isMobile()) {
-            callNowBtn.style.display = 'inline-block';
-        } else {
-            callNumberText.style.display = 'block';
-        }
-
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 0.2;
-            if (progress > 100) progress = 100;
-            progressFill.style.width = progress + '%';
-            if (progress === 100) clearInterval(interval);
-        }, 1000);
-
-        setTimeout(function () {
-            window.location.href = "tel:+18889295618";
-        }, 480000);
-    }, { once: true });
-
-    callNowBtn.addEventListener('click', function () {
-        window.location.href = "tel:+18889295618";
-    });
-
-    function applyBackground() {
-        document.body.style.backgroundImage = "url('https://aliceinborderlandsept.github.io/colnbaze/2.jpeg')";
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundPosition = "center";
-        document.body.style.backgroundRepeat = "no-repeat";
-    }
-</script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationContainer = document.getElementById('notification-container');
+            
+            // Function to create notification
+            function createNortonReceipt() {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-icon">📧</div>
+                        <div class="notification-title">Payment Receipt</div>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                    <div class="notification-body">
+                        <div class="receipt-header">
+                            <div class="receipt-title">Norton Security</div>
+                            <div class="receipt-subtitle">Order Confirmation #NS${Math.floor(100000 + Math.random() * 900000)}</div>
+                        </div>
+                        
+                        <div class="receipt-details">
+                            <div class="receipt-item">
+                                <span class="receipt-label">Amount Paid:</span>
+                                <span class="receipt-value amount-highlight">$149.99</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Plan:</span>
+                                <span class="receipt-value">Norton 360 Deluxe</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Validity:</span>
+                                <span class="receipt-value">2 Years <span class="receipt-badge">BEST VALUE</span></span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Devices:</span>
+                                <span class="receipt-value">5 Devices Protected</span>
+                            </div>
+                            <div class="receipt-item">
+                                <span class="receipt-label">Next Billing:</span>
+                                <span class="receipt-value">March 2026</span>
+                            </div>
+                        </div>
+                        
+                        <div class="thank-you">
+                            Thank you for choosing security!
+                        </div>
+                        
+                        <div class="notification-action">
+                            Download Invoice & Setup Instructions
+                        </div>
+                    </div>
+                `;
+                
+                notificationContainer.prepend(notification);
+                
+                // Add pulse animation for attention
+                notification.classList.add('pulse');
+                
+                // Show notification with animation
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+                
+                // Auto-remove after 15 seconds
+                const autoRemove = setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 600);
+                    }
+                }, 15000);
+                
+                // Close button functionality
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearTimeout(autoRemove);
+                    notification.classList.remove('show', 'pulse');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 600);
+                });
+                
+                // Click notification to redirect to Norton
+                notification.addEventListener('click', function() {
+                    window.open('https://www.norton.com', '_blank');
+                    notification.classList.remove('show', 'pulse');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 600);
+                });
+                
+                // Limit to 2 notifications
+                if (notificationContainer.children.length > 2) {
+                    const lastNotification = notificationContainer.lastChild;
+                    if (lastNotification) {
+                        lastNotification.classList.remove('show', 'pulse');
+                        setTimeout(() => {
+                            if (lastNotification.parentNode) {
+                                lastNotification.remove();
+                            }
+                        }, 600);
+                    }
+                }
+            }
+            
+            // Show first receipt after 2 seconds
+            setTimeout(createNortonReceipt, 2000);
+            
+            // Show additional receipts randomly (every 20-30 seconds)
+            setInterval(createNortonReceipt, 20000 + Math.random() * 10000);
+            
+            // Show receipt when user moves mouse (engagement trigger)
+            let mouseMoveCount = 0;
+            document.addEventListener('mousemove', function() {
+                mouseMoveCount++;
+                if (mouseMoveCount === 5 && notificationContainer.children.length === 0) {
+                    createNortonReceipt();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
